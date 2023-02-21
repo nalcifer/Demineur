@@ -3,18 +3,30 @@
 
 int main()
 {
-    int tableau[4][4] = {
-       {0, 0, 0, 0} ,
-       {0, 0, 0, 0} ,
-       {0, 0, 0, 0}
+    int tableau[5][5] = {
+       {0, 0, 0, 0, 0} ,
+       {0, 0, 0, 0, 0} ,
+       {0, 0, 0, 0, 0} ,
+       {0, 0, 0, 0, 0} ,
+       {0, 0, 0, 0, 0}
     };
     int i, j;
 
-    for (i = 0; i < 4 ; i++) {
+    for (i = 0; i < 5; i++) {
+        printf("  %d", i+1);
+    }
+    for (i = 0; i < 5; i++) {
         printf("\n");
-        for (j = 0; j < 4; j++) {
-            printf("[%d]", tableau[i][j]);
+        printf("%d", i + 1);
+
+        for (j = 0; j < 5; j++) {
+            if (tableau[i][j] == 0) {
+                printf("[ ]");
+            }
+            else {
+                printf("[%d]", tableau[i][j]);
+            }
         }
     }
-        
+
 }
