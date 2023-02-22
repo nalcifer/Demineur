@@ -1,13 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int main()
-{
-    char table_bomb[5][5] = {      //Tableau avec placement des bombes
-       {'b', 'o', 'b', 'o', 'o'} ,
-       {'o', 'o', 'b', 'o', 'o'} ,
-       {'o', 'o', 'o', 'o', 'b'} ,
-       {'o', 'b', 'o', 'o', 'o'} ,
-       {'o', 'o', 'o', 'b', 'o'}
+int main(){
+    srand(time(NULL));
+    int table_bomb[5][5] = {      //Tableau avec placement des bombes
+       {0, 0, 0, 0, 0} ,
+       {0, 0, 0, 0, 0} ,
+       {0, 0, 0, 0, 0} ,
+       {0, 0, 0, 0, 0} ,
+       {0, 0, 0, 0, 0}
     };
 
     char table_user[5][5] = {      //Tableau vu par le joueur
@@ -19,6 +20,29 @@ int main()
     };
     int i, j;
     int condition = 1;
+
+    //Initialisation du tableau bombe (avec indices)
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (table_bomb[i][j] == 0) {
+                table_bomb[i][j] = rand() % 4 + 1;   //Aléatoire des bombes
+            }
+        }
+    }
+
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (table_bomb[i + 1][j] == 1) {
+                table_bomb[i][j] = table_bomb[i][j] + 1;
+            }
+            if (table_bomb[i][j + 1] == 1) {
+                table_bomb[i][j]++;
+            }
+            if (table_bomb[i + 1][j + 1] == 1) {
+                table_bomb[i][j]++;
+            }
+        }
+    }
 
     while (condition) {
         //Tracer le tableau
@@ -43,10 +67,10 @@ int main()
 
         //Remplacer case joué dans tableau à afficher
         if (table_user[colonne][ligne] == 'X') {
-            if (table_bomb[colonne][ligne] == 'o') { //Si pas de bombe
-                table_user[colonne][ligne] = 'O';
+            if (table_bomb[colonne][ligne] != 1) { //Si pas de bombe
+                table_user[colonne][ligne] = "%c",table_bomb[colonne][ligne];
             }
-            else if (table_bomb[colonne][ligne] == 'b') { //Si bombe touché
+            else if (table_bomb[colonne][ligne] == 1) { //Si bombe touché
                 table_user[colonne][ligne] = 'b';
             }
         }
@@ -73,8 +97,8 @@ int main()
                         printf("%d", i + 1);
 
                         for (j = 0; j < 5; j++) {
-                            if (table_bomb[i][j] == 'b') {
-                                printf("[%c]", table_bomb[i][j]);
+                            if (table_bomb[i][j] == 1) {
+                                printf("[b]");
                             }
                             else {
                                 printf("[%c]", table_user[i][j]);
