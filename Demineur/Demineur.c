@@ -36,7 +36,7 @@ int main()
 
         //Input user choix de case
         int colonne, ligne;
-        printf("\nSur quelle case voulez-vous jouer ? :");
+        printf("\nSur quelle case voulez-vous jouer ?\nRentrez les coordonees : ");
         scanf_s("%d %d", &colonne, &ligne);
         colonne = colonne - 1;
         ligne = ligne - 1;
@@ -50,8 +50,11 @@ int main()
                 table_user[colonne][ligne] = 'b';
             }
         }
-        else if (colonne > 5 || ligne > 5) {
+        else if (colonne > 5 || ligne > 5) { //Si mauvais chiffre rentré
             printf("Rentrez des chiffres entre 1 et 5\n");
+        }
+        else if (table_user[colonne][ligne] != 'X') { //Si mauvais chiffre rentré
+            printf("\nVous ne pouvez pas jouer sur cette case !\n");
         }
         
 
@@ -60,7 +63,24 @@ int main()
             for (j = 0; j < 5; j++) {
                 if (table_user[i][j] == 'b') {
                     condition = 0;
-                    printf("\nPERDU\n");
+                    printf("\nPERDU\n"); 
+                    //Tracer tableau en révélant les bombes
+                    for (i = 0; i < 5; i++) {
+                        printf("  %d", i + 1);
+                    }
+                    for (i = 0; i < 5; i++) {
+                        printf("\n");
+                        printf("%d", i + 1);
+
+                        for (j = 0; j < 5; j++) {
+                            if (table_bomb[i][j] == 'b') {
+                                printf("[%c]", table_bomb[i][j]);
+                            }
+                            else {
+                                printf("[%c]", table_user[i][j]);
+                            }
+                        }
+                    }
 
                 }
             }
