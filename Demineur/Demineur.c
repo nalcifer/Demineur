@@ -20,18 +20,37 @@ int main(){
     };
     int i, j;
     int condition = 1;
+    int bomb_number = 0;
+
+    //1er coup
 
     //Initialisation du tableau bombe et indices
+    while (bomb_number < 7) {
+        i = rand() % 5;
+        j = rand() % 5;
+        if (table_bomb[i][j] == 0 && table_user[i][j] == 'X') {
+            table_bomb[i][j] = 1;
+            bomb_number++;
+        }
+    }
+
     for (i = 0; i < 5; i++) {
         for (j = 0; j < 5; j++) {
-            if (table_bomb[i][j] == 0) {
-                table_bomb[i][j] = rand() % 2;   //Aléatoire des bombes
+            if (table_bomb[i + 1][j] == 1) {
+                table_bomb[i][j] = table_bomb[i][j] + 1;
+            }
+            if (table_bomb[i][j + 1] == 1) {
+                table_bomb[i][j]++;
+            }
+            if (table_bomb[i + 1][j + 1] == 1) {
+                table_bomb[i][j]++;
             }
         }
     }
 
 
     while (condition) {
+        system("CLS");
         //Tracer le tableau
         for (i = 0; i < 5; i++) {
             printf("  %d", i + 1);
@@ -41,7 +60,7 @@ int main(){
             printf("%d", i + 1);
 
             for (j = 0; j < 5; j++) {
-                printf("[%c]", table_user[i][j]);
+                printf("[%d]", table_bomb[i][j]);
             }
         }
 
