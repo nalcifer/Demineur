@@ -21,28 +21,15 @@ int main(){
     int i, j;
     int condition = 1;
 
-    //Initialisation du tableau bombe (avec indices)
+    //Initialisation du tableau bombe et indices
     for (i = 0; i < 5; i++) {
         for (j = 0; j < 5; j++) {
             if (table_bomb[i][j] == 0) {
-                table_bomb[i][j] = rand() % 4 + 1;   //Aléatoire des bombes
+                table_bomb[i][j] = rand() % 2;   //Aléatoire des bombes
             }
         }
     }
 
-    for (i = 0; i < 5; i++) {
-        for (j = 0; j < 5; j++) {
-            if (table_bomb[i + 1][j] == 1) {
-                table_bomb[i][j] = table_bomb[i][j] + 1;
-            }
-            if (table_bomb[i][j + 1] == 1) {
-                table_bomb[i][j]++;
-            }
-            if (table_bomb[i + 1][j + 1] == 1) {
-                table_bomb[i][j]++;
-            }
-        }
-    }
 
     while (condition) {
         //Tracer le tableau
@@ -68,7 +55,7 @@ int main(){
         //Remplacer case joué dans tableau à afficher
         if (table_user[colonne][ligne] == 'X') {
             if (table_bomb[colonne][ligne] != 1) { //Si pas de bombe
-                table_user[colonne][ligne] = "%c",table_bomb[colonne][ligne];
+                table_user[colonne][ligne] = table_bomb[colonne][ligne] + '0';
             }
             else if (table_bomb[colonne][ligne] == 1) { //Si bombe touché
                 table_user[colonne][ligne] = 'b';
