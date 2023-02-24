@@ -22,35 +22,7 @@ int main(){
     int condition = 1;
     int bomb_number = 0;
 
-    //1er coup
-
-    //Initialisation du tableau bombe et indices
-    while (bomb_number < 7) {
-        i = rand() % 5;
-        j = rand() % 5;
-        if (table_bomb[i][j] == 0 && table_user[i][j] == 'X') {
-            table_bomb[i][j] = 1;
-            bomb_number++;
-        }
-    }
-
-    for (i = 0; i < 5; i++) {
-        for (j = 0; j < 5; j++) {
-            if (table_bomb[i + 1][j] == 1) {
-                table_bomb[i][j] = table_bomb[i][j] + 1;
-            }
-            if (table_bomb[i][j + 1] == 1) {
-                table_bomb[i][j]++;
-            }
-            if (table_bomb[i + 1][j + 1] == 1) {
-                table_bomb[i][j]++;
-            }
-        }
-    }
-
-
     while (condition) {
-        system("CLS");
         //Tracer le tableau
         for (i = 0; i < 5; i++) {
             printf("  %d", i + 1);
@@ -60,7 +32,7 @@ int main(){
             printf("%d", i + 1);
 
             for (j = 0; j < 5; j++) {
-                printf("[%d]", table_bomb[i][j]);
+                printf("[%c]", table_user[i][j]);
             }
         }
 
@@ -72,15 +44,87 @@ int main(){
         ligne = ligne - 1;
 
         //Remplacer case joué dans tableau à afficher
-        if (table_user[colonne][ligne] == 'X') {
-            if (table_bomb[colonne][ligne] != 1) { //Si pas de bombe
+        int first_attempt = 0; //Verifier si 1er coup
+        for (i = 0; i < 5; i++) {
+            for (j = 0; j < 5; j++) {
+                if (table_user[i][j] == 'X') {
+                    first_attempt++;
+                }
+            }
+        }
+        if (first_attempt == 25) { //1er coup 
+            table_user[colonne][ligne] = ' ';
+        //------------------------------------------------------------------------------------
+            //Initialisation du tableau bombe
+            while (bomb_number < 4) { //Aléatoire de la position des bombes
+                i = rand() % 5;
+                j = rand() % 5;
+                if (table_bomb[i][j] == 0 && table_user[i][j] == 'X') {
+                    table_bomb[i][j] = 9;
+                    bomb_number++;
+                }
+            }
+            //Indices
+            for (i = 0; i < 5; i++) {
+                for (j = 0; j < 5; j++) {
+                    if (table_bomb[i][j] != 9) {
+                        if (i < 4) {
+                            if (table_bomb[i + 1][j] == 9) {
+                                table_bomb[i][j]++;
+                            }
+                        }
+                        if (j < 4) {
+                            if (table_bomb[i][j + 1] == 9) {
+                                table_bomb[i][j]++;
+                            }
+                        }
+                        if (i < 4 && j < 4) {
+                            if (table_bomb[i + 1][j + 1] == 9) {
+                                table_bomb[i][j]++;
+                            }
+                        }
+
+                        if (i > 0) {
+                            if (table_bomb[i - 1][j] == 9) {
+                                table_bomb[i][j]++;
+                            }
+                        }
+                        if (j > 0) {
+                            if (table_bomb[i][j - 1] == 9) {
+                                table_bomb[i][j]++;
+                            }
+                        }
+                        if (i > 0 && j > 0) {
+                            if (table_bomb[i - 1][j - 1] == 9) {
+                                table_bomb[i][j]++;
+                            }
+                        }
+                        if (i < 4 && j > 0) {
+                            if (table_bomb[i + 1][j - 1] == 9) {
+                                table_bomb[i][j]++;
+                            }
+                        }
+                        if (i > 0 && j < 4) {
+                            if (table_bomb[i - 1][j + 1] == 9) {
+                                table_bomb[i][j]++;
+                            }
+                        }
+                    }
+                }
+            }
+        //------------------------------------------------------------------------------------
+        
+        }
+        else if (table_user[colonne][ligne] == 'X') {
+            if (table_bomb[colonne][ligne] != 9) { //Si pas de bombe
                 table_user[colonne][ligne] = table_bomb[colonne][ligne] + '0';
             }
-            else if (table_bomb[colonne][ligne] == 1) { //Si bombe touché
+            else if (table_bomb[colonne][ligne] == 9) { //Si bombe touché
                 table_user[colonne][ligne] = 'b';
             }
         }
-        else if (colonne > 5 || ligne > 5) { //Si mauvais chiffre rentré
+
+        else if (colonne > 4 || ligne > 4) { //Si mauvais chiffre rentré
             printf("Rentrez des chiffres entre 1 et 5\n");
         }
         else if (table_user[colonne][ligne] != 'X') { //Si mauvais chiffre rentré
@@ -103,7 +147,7 @@ int main(){
                         printf("%d", i + 1);
 
                         for (j = 0; j < 5; j++) {
-                            if (table_bomb[i][j] == 1) {
+                            if (table_bomb[i][j] == 9) {
                                 printf("[b]");
                             }
                             else {
@@ -116,5 +160,4 @@ int main(){
             }
         }
     }
-
 }
