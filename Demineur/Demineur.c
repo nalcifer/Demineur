@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 int main(){
     srand(time(NULL));
     int tab_bomb[5][5] = {      //Tableau avec placement des bombes
@@ -52,17 +53,34 @@ int main(){
                 }
             }
         }
+        //------------------------------------------------------------------------------------
         if (first_attempt == 25) { //1er coup 
             tab_user[colonne][ligne] = ' ';
-            tab_user[colonne + 1][ligne] = ' ';
-            tab_user[colonne][ligne + 1] = ' ';
-            tab_user[colonne + 1][ligne + 1] = ' ';
-            tab_user[colonne - 1][ligne] = ' ';
-            tab_user[colonne][ligne - 1] = ' ';
-            tab_user[colonne - 1][ligne - 1] = ' ';
-            tab_user[colonne + 1][ligne - 1] = ' ';
-            tab_user[colonne - 1][ligne + 1] = ' ';
-        //------------------------------------------------------------------------------------
+            if (colonne < 4) {
+                tab_user[colonne + 1][ligne] = ' ';
+            }
+            if (ligne < 4) {
+                tab_user[colonne][ligne + 1] = ' ';
+            }
+            if (colonne < 4 && ligne < 4) {
+                tab_user[colonne + 1][ligne + 1] = ' ';
+            }
+            if (colonne > 0) {
+                tab_user[colonne - 1][ligne] = ' ';
+            }
+            if (ligne > 0) {
+                tab_user[colonne][ligne - 1] = ' ';
+            }
+            if (colonne > 0 && ligne > 0) {
+                tab_user[colonne - 1][ligne - 1] = ' ';
+            }
+            if (colonne < 4 && ligne > 0) {
+                tab_user[colonne + 1][ligne - 1] = ' ';
+            }
+            if (colonne > 0 && ligne < 4) {
+                tab_user[colonne - 1][ligne + 1] = ' ';
+            }
+            
             //Initialisation du tableau bombe
             while (bomb_number < 5) { //Aléatoire de la position des bombes
                 i = rand() % 5;
