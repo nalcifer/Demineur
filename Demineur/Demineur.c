@@ -29,12 +29,16 @@ int main() {
     int i, j;
     int condition = 1;
     int bomb_number = 0;
+    int first_attempt;
    
 
     do {
-        //Tracer le tableau
+        system("CLS");
+        //Afficher le tableau
         drawTabUser(tab_user);
-        int i, j;
+
+        //----------------------------- Afficher tab_bomb
+        /*int i, j;
         printf(" \n\n");
         for (i = 0; i < SIZE; i++) {
             printf("  %d", i + 1);
@@ -47,7 +51,9 @@ int main() {
                 printf("[%d]", tab_bomb[i][j]);
             }
         }
-
+        */
+        //----------------------------- 
+        
         //Input user choix de case
         int colonne, ligne;
         choiceUser(&colonne, &ligne);
@@ -62,7 +68,7 @@ int main() {
         }
 
         //1er coup et Initialisation du tableau bombe
-        int first_attempt = 0;
+        first_attempt = 0;
         for (i = 0; i < SIZE; i++) {
             for (j = 0; j < SIZE; j++) {
                 if (tab_user[i][j] == 'X') {
@@ -70,7 +76,7 @@ int main() {
                 }
             }
         }
-        if (first_attempt == 25) {
+        if (first_attempt == SIZE*SIZE) {
             bomb_number = bombInit(colonne, ligne, tab_user, tab_bomb, bomb_number);
         }
         else if (tab_user[colonne][ligne] == 'X') {
@@ -161,6 +167,7 @@ int bombInit (int colonne, int ligne, char tab_user[SIZE][SIZE], int tab_bomb[SI
     }
 
     //Initialisation du tableau bombe
+    bomb_number = 0;
     while (bomb_number < SIZE) { //Aléatoire de la position des bombes
         i = rand() % SIZE;
         j = rand() % SIZE;
@@ -252,45 +259,37 @@ void clearCases(char tab_user[SIZE][SIZE], int tab_bomb[SIZE][SIZE]) {
     for (i = 0; i < SIZE; i++) {
         for (j = 0; j < SIZE; j++) {
             if (tab_user[i][j] == '0') {
-                tab_user[i][j] = ' ';
                 if (i < SIZE - 1) {
-                        tab_user[i + 1][j] = tab_bomb[i + 1][j] + '0';
+                    tab_user[i + 1][j] = tab_bomb[i + 1][j] + '0';
                 }
                 if (j < SIZE - 1) {
-                    if (tab_bomb[i][j + 1] != 0) {
-                        tab_user[i][j + 1] = tab_bomb[i][j + 1] + '0';
-                    }
+                    tab_user[i][j + 1] = tab_bomb[i][j + 1] + '0';
                 }
                 if (i < SIZE - 1 && j < SIZE - 1) {
-                    if (tab_bomb[i + 1][j + 1] != 0){
-                        tab_user[i + 1][j + 1] = tab_bomb[i + 1][j + 1] + '0';
-                    }
+                    tab_user[i + 1][j + 1] = tab_bomb[i + 1][j + 1] + '0';
                 }
                 if (i > 0) {
-                    if(tab_bomb[i - 1][j] != 0){
-                        tab_user[i - 1][j] = tab_bomb[i - 1][j] + '0';
-                    }
+                    tab_user[i - 1][j] = tab_bomb[i - 1][j] + '0';
                 }
                 if (j > 0) {
-                    if(tab_bomb[i][j - 1] != 0){
-                        tab_user[i][j - 1] = tab_bomb[i][j - 1] + '0';
-                    }
+                    tab_user[i][j - 1] = tab_bomb[i][j - 1] + '0';
                 }
                 if (i > 0 && j > 0) {
-                    if(tab_bomb[i - 1][j - 1] != 0){
-                        tab_user[i - 1][j - 1] = tab_bomb[i - 1][j - 1] + '0';
-                    }
+                    tab_user[i - 1][j - 1] = tab_bomb[i - 1][j - 1] + '0';
                 }
                 if (i < SIZE - 1 && j > 0) {
-                    if (tab_bomb[i + 1][j - 1] != 0){
-                        tab_user[i + 1][j - 1] = tab_bomb[i + 1][j - 1]+ '0';
-                    }
+                    tab_user[i + 1][j - 1] = tab_bomb[i + 1][j - 1]+ '0';
                 }
                 if (i > 0 && j < SIZE - 1) {
-                    if (tab_bomb[i - 1][j + 1] != 0){
-                        tab_user[i - 1][j + 1] = tab_bomb[i - 1][j + 1] + '0';
-                    }
+                    tab_user[i - 1][j + 1] = tab_bomb[i - 1][j + 1] + '0';
                 }
+            }
+        }
+    }
+    for (i = 0; i < SIZE; i++) {
+        for (j = 0; j < SIZE; j++) {
+            if (tab_user[i][j] == '0') {
+                tab_user[i][j] = ' ';
             }
         }
     }
@@ -321,6 +320,13 @@ int end (int tab_bomb[SIZE][SIZE], char tab_user[SIZE][SIZE], int condition) {
     while (condition != 1 && condition != 0) {
         printf("\nReponse non valide.\nVoulez-vous rejouer ? 1:Oui 0:Non :  ");
         scanf_s("%d", &condition);
+    }
+    //Remettre les tableaux à 0
+    for (i = 0; i < SIZE; i++) {
+        for (j = 0; j < SIZE; j++) {
+            tab_bomb[i][j] = 0;
+            tab_user[i][j] = 'X';
+        }
     }
     return condition;
 }
