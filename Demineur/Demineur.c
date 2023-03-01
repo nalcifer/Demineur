@@ -38,6 +38,7 @@ int main() {
         drawTabUser(tab_user);
 
         //----------------------------- Afficher tab_bomb
+        /*
         int i, j;
         printf(" \n\n");
         for (i = 0; i < SIZE; i++) {
@@ -51,13 +52,13 @@ int main() {
                 printf("[%d]", tab_bomb[i][j]);
             }
         }
+        */
         //----------------------------- 
         
         //Input user choix de case
         int line = -1;
         int column = -1;
-        choiceUser(&line, &column, tab_user);
-
+        
         //1er coup et Initialisation du tableau bombe
         first_attempt = 0;
         for (i = 0; i < SIZE; i++) {
@@ -68,14 +69,36 @@ int main() {
             }
         }
         if (first_attempt == SIZE*SIZE) {
+            choiceUser(&line, &column, tab_user);
             bomb_number = bombInit(line, column, tab_user, tab_bomb, bomb_number);
         }
-        else if (tab_user[line][column] == 'X') {
-            if (tab_bomb[line][column] != 9) { //Si pas de bombe
-                tab_user[line][column] = tab_bomb[line][column] + '0';
+        else {
+            //Drapeaux
+            int flag;
+            printf("\n\nVoulez-vous poser un drapeau ? 1:Oui 0:Non :  ");
+            scanf_s("%d", &flag);
+            while (getchar() != '\n');
+            while (flag != 1 && flag != 0) {
+                printf("\nReponse non valide.\nVoulez-vous poser un drapeau ? 1:Oui 0:Non :  ");
+                scanf_s("%d", &flag);
+                while (getchar() != '\n');
             }
-            else if (tab_bomb[line][column] == 9) { //Si bombe touché
-                tab_user[line][column] = 'b';
+            if (flag == 1) {
+                choiceUser(&line, &column, tab_user);
+                if (tab_user[line][column] == 'X') {
+                    tab_user[line][column] = 'D';
+                }
+            }
+            else if (flag == 0) {
+                choiceUser(&line, &column, tab_user);
+                if (tab_user[line][column] == 'X' || tab_user[line][column] == 'D') {
+                    if (tab_bomb[line][column] != 9) { //Si pas de bombe
+                        tab_user[line][column] = tab_bomb[line][column] + '0';
+                    }
+                    else if (tab_bomb[line][column] == 9) { //Si bombe touché
+                        tab_user[line][column] = 'b';
+                    }
+                }
             }
         }
         //Changer les cases 0 en ' ' et afficher les cases autours
@@ -91,7 +114,7 @@ int main() {
                     condition = end(tab_bomb, tab_user, condition);
                 }
 
-                if (tab_user[i][j] != 'X') {
+                if (tab_user[i][j] != 'X' && tab_user[i][j] != 'D') {
                     win++;
                 }
                 if (win == SIZE * SIZE - bomb_number) {
