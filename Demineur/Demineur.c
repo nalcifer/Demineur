@@ -4,10 +4,10 @@
 #define SIZE 5
 
 void drawTabUser(char tab_user[SIZE][SIZE]);
-void choiceUser(int* line, int* column, char tab_user[SIZE][SIZE]);
+void getUserChoice(int* line, int* column, char tab_user[SIZE][SIZE]);
 int bombInit(int line, int column, char tab_user[SIZE][SIZE], int tab_bomb[SIZE][SIZE], int bomb_number);
-void clearCases(char tab_user[SIZE][SIZE], int tab_bomb[SIZE][SIZE]);
-int end(int tab_bomb[SIZE][SIZE], char tab_user[SIZE][SIZE], int condition);
+void revealCases(int line, int column, char tab_user[SIZE][SIZE], int tab_bomb[SIZE][SIZE]);
+int isGameOver(int tab_bomb[SIZE][SIZE], char tab_user[SIZE][SIZE], int condition);
 
 int main() {
     srand(time(NULL));
@@ -38,7 +38,6 @@ int main() {
         drawTabUser(tab_user);
 
         //----------------------------- Afficher tab_bomb
-        /*
         int i, j;
         printf(" \n\n");
         for (i = 0; i < SIZE; i++) {
@@ -52,7 +51,6 @@ int main() {
                 printf("[%d]", tab_bomb[i][j]);
             }
         }
-        */
         //----------------------------- 
         
         //Input user choix de case
@@ -69,7 +67,7 @@ int main() {
             }
         }
         if (first_attempt == SIZE*SIZE) {
-            choiceUser(&line, &column, tab_user);
+            getUserChoice(&line, &column, tab_user);
             bomb_number = bombInit(line, column, tab_user, tab_bomb, bomb_number);
         }
         else {
@@ -84,25 +82,25 @@ int main() {
                 while (getchar() != '\n');
             }
             if (flag == 1) {
-                choiceUser(&line, &column, tab_user);
+                getUserChoice(&line, &column, tab_user);
                 if (tab_user[line][column] == 'X') {
                     tab_user[line][column] = 'D';
                 }
             }
             else if (flag == 0) {
-                choiceUser(&line, &column, tab_user);
+                getUserChoice(&line, &column, tab_user);
                 if (tab_user[line][column] == 'X' || tab_user[line][column] == 'D') {
                     if (tab_bomb[line][column] != 9) { //Si pas de bombe
                         tab_user[line][column] = tab_bomb[line][column] + '0';
                     }
-                    else if (tab_bomb[line][column] == 9) { //Si bombe touché
+                    else if (tab_bomb[line][column] == 9) { //Si bombe touche
                         tab_user[line][column] = 'b';
                     }
                 }
             }
         }
         //Changer les cases 0 en ' ' et afficher les cases autours
-        clearCases(tab_user, tab_bomb);
+        revealCases(line, column, tab_user, tab_bomb);
 
 
         //Si perdu stop le jeu
@@ -111,7 +109,7 @@ int main() {
             for (j = 0; j < SIZE; j++) {
                 if (tab_user[i][j] == 'b') {
                     printf("\nPERDU\n");
-                    condition = end(tab_bomb, tab_user, condition);
+                    condition = isGameOver(tab_bomb, tab_user, condition);
                 }
 
                 if (tab_user[i][j] != 'X' && tab_user[i][j] != 'D') {
@@ -119,7 +117,7 @@ int main() {
                 }
                 if (win == SIZE * SIZE - bomb_number) {
                     printf("\nBravo ! Vous avez reussi.\n");
-                    condition = end(tab_bomb, tab_user, condition);
+                    condition = isGameOver(tab_bomb, tab_user, condition);
                 }
             }
         } 
@@ -143,17 +141,28 @@ void drawTabUser(char tab_user[SIZE][SIZE]) {
     }
 }
 
-void choiceUser (int *line, int *column, char tab_user[SIZE][SIZE]) {
-    while (*line > SIZE - 1 || *column > SIZE - 1 || *line < 0 || *column < 0 || tab_user[*line][*column] != 'X') {
+/*int askNumber(int min, int max, const char* message) {
+
+    while ( ) {
+        printf("%s", message);
+        scanf_s("%d", &result);
+        while (getchar() != '\n');
+    }
+    return result;
+}
+*/
+
+void getUserChoice (int *line, int *column, char tab_user[SIZE][SIZE]) {
+    while (*line > SIZE - 1 || *column > SIZE - 1 || *line < 0 || *column < 0 || tab_user[*line][*column] != 'X' && tab_user[*line][*column] != 'D') {
         printf("\nSur quelle case voulez-vous jouer ?\nRentrez les coordonees : ");
         scanf_s("%d.%d", line, column);
         while (getchar() != '\n');
-        *line = *line - 1;
-        *column = *column - 1;
+        (*line)--;
+        (*column)--;
         if (*line > SIZE - 1 || *column > SIZE - 1 || *line < 0 || *column < 0) {
             printf("Rentrez des chiffres entre 1 et %d. (ligne.colonne)\n", SIZE);
         }
-        else if (tab_user[*line][*column] != 'X') { //Si mauvais chiffre rentré
+        else if (tab_user[*line][*column] != 'X' && tab_user[*line][*column] != 'D') { //Si mauvais chiffre rentre
             printf("\nVous ne pouvez pas jouer sur cette case !\n");
         }
     }
@@ -161,35 +170,35 @@ void choiceUser (int *line, int *column, char tab_user[SIZE][SIZE]) {
 
 int bombInit (int line, int column, char tab_user[SIZE][SIZE], int tab_bomb[SIZE][SIZE], int bomb_number){
     int i, j;
-    tab_user[line][column] = ' ';
+    tab_user[line][column] = '0';
     //Pour ne pas mettre de bombes autour du 1er coup
     if (line < SIZE - 1) {
-        tab_user[line + 1][column] = ' ';
+        tab_user[line + 1][column] = '0';
     }
     if (column < SIZE - 1) {
-        tab_user[line][column + 1] = ' ';
+        tab_user[line][column + 1] = '0';
     }
     if (line < SIZE - 1 && column < SIZE - 1) {
-        tab_user[line + 1][column + 1] = ' ';
+        tab_user[line + 1][column + 1] = '0';
     }
     if (line > 0) {
-        tab_user[line - 1][column] = ' ';
+        tab_user[line - 1][column] = '0';
     }
     if (column > 0) {
-        tab_user[line][column - 1] = ' ';
+        tab_user[line][column - 1] = '0';
     }
     if (line > 0 && column > 0) {
-        tab_user[line - 1][column - 1] = ' ';
+        tab_user[line - 1][column - 1] = '0';
     }
     if (line < SIZE - 1 && column > 0) {
-        tab_user[line + 1][column - 1] = ' ';
+        tab_user[line + 1][column - 1] = '0';
     }
     if (line > 0 && column < SIZE - 1) {
-        tab_user[line - 1][column + 1] = ' ';
+        tab_user[line - 1][column + 1] = '0';
     }
     //Initialisation du tableau bombe
     bomb_number = 0;
-    while (bomb_number < SIZE) { //Aléatoire de la position des bombes
+    while (bomb_number < SIZE) { //Aleatoire de la position des bombes
         i = rand() % SIZE;
         j = rand() % SIZE;
         if (tab_bomb[i][j] == 0 && tab_user[i][j] == 'X') {
@@ -275,50 +284,46 @@ int bombInit (int line, int column, char tab_user[SIZE][SIZE], int tab_bomb[SIZE
     return bomb_number;
 }
 
-void clearCases(char tab_user[SIZE][SIZE], int tab_bomb[SIZE][SIZE]) {
-    int i, j;
-    for (i = 0; i < SIZE; i++) {
-        for (j = 0; j < SIZE; j++) {
-            if (tab_user[i][j] == '0') {
-                if (i < SIZE - 1) {
-                    tab_user[i + 1][j] = tab_bomb[i + 1][j] + '0';
-                }
-                if (j < SIZE - 1) {
-                    tab_user[i][j + 1] = tab_bomb[i][j + 1] + '0';
-                }
-                if (i < SIZE - 1 && j < SIZE - 1) {
-                    tab_user[i + 1][j + 1] = tab_bomb[i + 1][j + 1] + '0';
-                }
-                if (i > 0) {
-                    tab_user[i - 1][j] = tab_bomb[i - 1][j] + '0';
-                }
-                if (j > 0) {
-                    tab_user[i][j - 1] = tab_bomb[i][j - 1] + '0';
-                }
-                if (i > 0 && j > 0) {
-                    tab_user[i - 1][j - 1] = tab_bomb[i - 1][j - 1] + '0';
-                }
-                if (i < SIZE - 1 && j > 0) {
-                    tab_user[i + 1][j - 1] = tab_bomb[i + 1][j - 1]+ '0';
-                }
-                if (i > 0 && j < SIZE - 1) {
-                    tab_user[i - 1][j + 1] = tab_bomb[i - 1][j + 1] + '0';
-                }
-            }
+void revealCases(int line, int column, char tab_user[SIZE][SIZE], int tab_bomb[SIZE][SIZE]) {
+
+    if (tab_user[line][column] != 'X' && tab_user[line][column] != '0')
+        return;
+
+    tab_user[line][column] = tab_bomb[line][column] + '0';
+
+    if (tab_user[line][column] == '0') {
+        tab_user[line][column] = ' ';
+        
+        if (line < SIZE - 1) {
+            revealCases(line+1, column, tab_user, tab_bomb);
         }
-    }
-    for (i = 0; i < SIZE; i++) {
-        for (j = 0; j < SIZE; j++) {
-            if (tab_user[i][j] == '0') {
-                tab_user[i][j] = ' ';
-            }
+        if (column < SIZE - 1) {
+            revealCases(line, column + 1, tab_user, tab_bomb);
+        }
+        if (line < SIZE - 1 && column < SIZE - 1) {
+            revealCases(line + 1, column + 1, tab_user, tab_bomb);
+        }
+        if (line > 0) {
+            revealCases(line - 1, column, tab_user, tab_bomb);
+        }
+        if (column > 0) {
+            revealCases(line, column - 1, tab_user, tab_bomb);
+        }
+        if (line > 0 && column > 0) {
+            revealCases(line - 1, column - 1, tab_user, tab_bomb);
+        }
+        if (line < SIZE - 1 && column > 0) {
+            revealCases(line + 1, column - 1, tab_user, tab_bomb);
+        }
+        if (line > 0 && column < SIZE - 1) {
+            revealCases(line - 1, column + 1, tab_user, tab_bomb);
         }
     }
 }
 
-int end (int tab_bomb[SIZE][SIZE], char tab_user[SIZE][SIZE], int condition) {
+int isGameOver (int tab_bomb[SIZE][SIZE], char tab_user[SIZE][SIZE], int condition) {
     int i, j;
-    //Tracer tableau en révélant les bombes
+    //Tracer tableau en revelant les bombes
     for (i = 0; i < SIZE; i++) {
         printf("  %d", i + 1);
     }
@@ -344,7 +349,7 @@ int end (int tab_bomb[SIZE][SIZE], char tab_user[SIZE][SIZE], int condition) {
         scanf_s("%d", &condition);
         while (getchar() != '\n');
     }
-    //Remettre les tableaux à 0
+    //Remettre les tableaux a 0
     for (i = 0; i < SIZE; i++) {
         for (j = 0; j < SIZE; j++) {
             tab_bomb[i][j] = 0;
