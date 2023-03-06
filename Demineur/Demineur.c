@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-int row = 0; 
+int row = 0;
 // initialisation fonctions secondaires
 void drawTabUser(char** tab_user);
 void drawTabBomb(int** tab_bomb);
@@ -10,6 +10,7 @@ int askOneNumber(int min, int max, const char* message);
 char** createCharTab(int row, char filling);
 int** createIntTab(int row, int filling);
 void getCoordinatesChoice(int* line, int* column, char** tab_user);
+void removeTabValue(int** tab, int indice, int* size);
 int initBomb(int line, int column, char** tab_user, int** tab_bomb, int bomb_number);
 void revealSafeBoxes(int line, int column, char** tab_user, int** tab_bomb);
 int isGameOver(int** tab_bomb, char** tab_user, int condition);
@@ -39,7 +40,7 @@ int main() {
             // choix nombre de bombes
             int bomb_choice = askOneNumber(0, 1, "Voulez-vous choisir le nombre de bombes? 1:OUI 0:NON : ");
             if (bomb_choice == 1) {
-            bomb_number = askOneNumber(1, row*row-1, "Entrez le nombre de bombes : ");
+                bomb_number = askOneNumber(1, row * row - 1, "Entrez le nombre de bombes : ");
             }
             else {
                 bomb_number = row;
@@ -47,7 +48,7 @@ int main() {
         }
         drawTabUser(tab_user);
         /*drawTabBomb(tab_bomb);*/
-        
+
         int line = -1;
         int column = -1;
         if (first_attempt == 1) { // 1er coup
@@ -59,7 +60,7 @@ int main() {
             int flag;
             flag = askOneNumber(0, 1, "\n\nVoulez-vous poser un drapeau ? 1:Oui 0:Non :  ");
             // jouer un drapeau
-            if (flag == 1) { 
+            if (flag == 1) {
                 getCoordinatesChoice(&line, &column, tab_user);
                 if (tab_user[line][column] == 'X') {
                     tab_user[line][column] = 'D';
@@ -214,6 +215,16 @@ int** createIntTab(int row, int filling) {
     return table;
 }
 
+void removeTabValue(int** tab, int indice, int* size) {
+    int newSize = *size - 1;
+
+    for (int i = indice; i < newSize; i++) {
+        tab[i] = tab[i + 1];
+    }
+
+    *size = newSize;
+}
+
 void getCoordinatesChoice(int* line, int* column, char** tab_user) {
     while (*line > row - 1 || *column > row - 1 || *line < 0 || *column < 0 || tab_user[*line][*column] != 'X' && tab_user[*line][*column] != 'D') {
         printf("\nSur quelle case voulez-vous jouer ?\nRentrez les coordonees : ");
@@ -232,7 +243,56 @@ void getCoordinatesChoice(int* line, int* column, char** tab_user) {
 
 int initBomb(int line, int column, char** tab_user, int** tab_bomb, int bomb_number) {
     srand(time(NULL));
+    int bomb_in_tab = 0;
     int i, j;
+    
+    int size = row * row;
+    int** bomb_possibilities = malloc(size * sizeof(int*));
+    for (i = 0; i < row; i++) {
+        for (j = 0; j < row; j++) {
+            bomb_possibilities[i * row + j] = &tab_bomb[i][j];
+        }
+    }
+    removeTabValue(bomb_possibilities, line * row + column, &size);
+    //Pour ne pas mettre de bombes autour du 1er coup
+    if (line < row - 1) {
+        removeTabValue(bomb_possibilities, (line+1) * row + column, &size);
+    }
+    if (column < row - 1) {
+        removeTabValue(bomb_possibilities, line * row + (column+1), &size);
+    }
+    if (line < row - 1 && column < row - 1) {
+        removeTabValue(bomb_possibilities, (line+1) * row + (column+1), &size);
+    }
+    if (line > 0) {
+        removeTabValue(bomb_possibilities, (line-1) * row + column, &size);
+    }
+    if (column > 0) {
+        removeTabValue(bomb_possibilities, line * row + (column-1), &size);
+    }
+    if (line > 0 && column > 0) {
+        removeTabValue(bomb_possibilities, (line-1) * row + (column-1), &size);
+    }
+    if (line < row - 1 && column > 0) {
+        removeTabValue(bomb_possibilities, (line+1) * row + (column-1), &size);
+    }
+    if (line > 0 && column < row - 1) {
+        removeTabValue(bomb_possibilities, (line-1) * row + (column+1), &size);
+    }
+
+    int* ptr;
+    while (bomb_in_tab < bomb_number) { //Aleatoire de la position des bombes
+        int random = rand() % size;
+        ptr = bomb_possibilities[random];
+        *ptr = 9;
+        removeTabValue(bomb_possibilities, random, &size);
+        bomb_in_tab++;
+    }
+    free(bomb_possibilities);
+
+
+    //------------------------------------------------------------ Autre moyen de placer les bombes en aléatoire
+    /*
     tab_user[line][column] = '0';
     // pour ne pas mettre de bombes autour du 1er coup
     if (line < row - 1) {
@@ -268,77 +328,9 @@ int initBomb(int line, int column, char** tab_user, int** tab_bomb, int bomb_num
             tab_bomb[i][j] = 9;
             bomb_in_tab++;
         }
-    }
-    //------------------------------------------------------------ Autre moyen de placer les bombes en aléatoire
-    /*
-    int* bomb_possibilities = malloc(row * row *sizeof(int));
-    for (i = 0; i < row; i++) {
-        for (j = 0; j < row; j++) {
-            bomb_possibilities[i * row + j] = &tab_bomb[i][j];
-        }
-    }
-
-    for (i = line * row + column; i < row * row - bomb_in_tab; i++) {
-        bomb_possibilities[i] = bomb_possibilities[i + 1];
-    }
-    //Pour ne pas mettre de bombes autour du 1er coup
-    if (line < row - 1) {
-        for (i = line+1 * row + column; i < row * row - bomb_in_tab; i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-    }
-    if (column < row - 1) {
-        for (i = line * row + column+1; i < row * row - bomb_in_tab; i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-    }
-    if (line < row - 1 && column < row - 1) {
-        for (i = line+1 * row + column+1; i < row * row - bomb_in_tab; i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-    }
-    if (line > 0) {
-        for (i = line-1 * row + column; i < row * row - bomb_in_tab; i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-    }
-    if (column > 0) {
-        for (i = line * row + column-1; i < row * row - bomb_in_tab; i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-    }
-    if (line > 0 && column > 0) {
-        for (i = line-1 * row + column-1; i < row * row - bomb_in_tab; i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-    }
-    if (line < row - 1 && column > 0) {
-        for (i = line+1 * row + column-1; i < row * row - bomb_in_tab; i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-    }
-    if (line > 0 && column < row - 1) {
-        for(i = line-1 * row + column+1; i < row* row - bomb_in_tab; i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-    }
-
-    bomb_possibilities = (int*)realloc(bomb_possibilities, sizeof(int) * row - 9);
-
-    int* ptr;
-    while (bomb_in_tab < bomb_number) { //Aleatoire de la position des bombes
-        int random = rand() % (row*row - 9 - bomb_in_tab);
-        ptr = bomb_possibilities[random];
-        *ptr = 9;
-        for (i = random; i < (row * row - bomb_in_tab); i++) {
-            bomb_possibilities[i] = bomb_possibilities[i + 1];
-        }
-        bomb_possibilities = (int*)realloc(bomb_possibilities, sizeof(int) * row - 9 - bomb_in_tab);
-        bomb_in_tab++;
-    }
-    */
+    }*/
     //------------------------------------------------------------ 
-  
+
     // initialisation indices
     for (i = 0; i < row; i++) {
         for (j = 0; j < row; j++) {
